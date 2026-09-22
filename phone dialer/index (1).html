@@ -7,6 +7,10 @@
 <meta name="theme-color" content="#000000">
 <meta name="description" content="Liquid Glass Dialer">
 
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
 <title>Phone</title>
 
 <style>
@@ -118,11 +122,26 @@ svg{
 @keyframes screenIn{
   from{
     opacity:0;
-    transform:translateY(7px);
+    transform:translateY(7px) scale(.985);
   }
   to{
     opacity:1;
     transform:none;
+  }
+}
+
+.screen.anim-out{
+  animation:screenOut .28s cubic-bezier(.4,0,.6,1) forwards;
+}
+
+@keyframes screenOut{
+  from{
+    opacity:1;
+    transform:none;
+  }
+  to{
+    opacity:0;
+    transform:translateY(-6px) scale(.98);
   }
 }
 
@@ -200,6 +219,12 @@ svg{
   align-items:center;
   gap:12px;
   border-bottom:1px solid var(--line);
+  border-radius:12px;
+  transition:background .15s;
+}
+
+.row:active{
+  background:rgba(255,255,255,.045);
 }
 
 .avatar{
@@ -310,7 +335,42 @@ svg{
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  padding:0 20px 16px;
+  padding:0 14px 20px;
+  gap:4px;
+}
+
+.display-spacer{
+  width:34px;
+  flex:none;
+}
+
+.backspace-btn{
+  width:34px;
+  height:34px;
+  flex:none;
+  align-self:flex-end;
+  margin-bottom:9px;
+  border:0;
+  background:none;
+  color:#8e8e93;
+  padding:6px;
+  border-radius:8px;
+  opacity:0;
+  transform:scale(.8);
+  pointer-events:none;
+  transition:opacity .18s,transform .18s,background .15s,color .15s;
+}
+
+.backspace-btn.show{
+  opacity:1;
+  transform:scale(1);
+  pointer-events:auto;
+}
+
+.backspace-btn:active{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  transform:scale(.88);
 }
 
 .number{
@@ -327,6 +387,24 @@ svg{
 
 .number.small{
   font-size:28px;
+}
+
+.number.pop{
+  animation:numberPop .22s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes numberPop{
+  0%{
+    transform:scale(.88);
+    opacity:.5;
+  }
+  60%{
+    transform:scale(1.05);
+    opacity:1;
+  }
+  100%{
+    transform:scale(1);
+  }
 }
 
 .keypad{
@@ -493,10 +571,42 @@ svg{
   font-size:14px;
 }
 
-.incoming-avatar{
+.incoming-avatar-wrap{
+  position:relative;
   width:112px;
   height:112px;
   margin-top:48px;
+}
+
+.pulse-ring{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:2px solid rgba(48,209,88,.45);
+  animation:pulseRing 2.2s cubic-bezier(.2,.7,.4,1) infinite;
+  pointer-events:none;
+}
+
+.pulse-ring.delay{
+  animation-delay:1.1s;
+}
+
+@keyframes pulseRing{
+  0%{
+    transform:scale(.92);
+    opacity:.65;
+  }
+  100%{
+    transform:scale(1.55);
+    opacity:0;
+  }
+}
+
+.incoming-avatar{
+  position:relative;
+  z-index:1;
+  width:112px;
+  height:112px;
   border-radius:50%;
   display:flex;
   align-items:center;
@@ -517,6 +627,17 @@ svg{
   box-shadow:
     0 25px 70px rgba(0,0,0,.5),
     inset 0 1px 0 rgba(255,255,255,.15);
+
+  animation:avatarBreathe 2.6s ease-in-out infinite;
+}
+
+@keyframes avatarBreathe{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.035);
+  }
 }
 
 .incoming-name{
@@ -592,6 +713,21 @@ svg{
 
   padding:18px;
   touch-action:none;
+  transition:box-shadow .15s;
+}
+
+.slider-knob.snapping{
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;
+}
+
+.slider-fill{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:0;
+  background:linear-gradient(90deg,rgba(48,209,88,0),rgba(48,209,88,.22));
+  pointer-events:none;
 }
 
 /* Active call */
@@ -615,6 +751,32 @@ svg{
   padding-top:65px;
   color:var(--green);
   font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--green);
+  animation:dotPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dotPulse{
+  0%,100%{
+    opacity:1;
+    box-shadow:0 0 0 0 rgba(48,209,88,.5);
+  }
+  50%{
+    opacity:.55;
+    box-shadow:0 0 0 5px rgba(48,209,88,0);
+  }
+}
+
+.call-avatar{
+  animation:avatarBreathe 2.6s ease-in-out infinite;
 }
 
 .call-avatar{
@@ -641,24 +803,45 @@ svg{
   color:#77777e;
 }
 
-.call-controls{
+.call-controls-wrap{
   margin-top:auto;
-  margin-bottom:50px;
+  margin-bottom:calc(38px + var(--safe-bottom));
   display:flex;
-  gap:20px;
+  flex-direction:column;
+  align-items:center;
+  gap:28px;
+}
+
+.call-controls-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:22px 44px;
+}
+
+.control-cell{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+}
+
+.control-label{
+  font-size:11px;
+  color:#87878d;
+  letter-spacing:.1px;
 }
 
 .control{
-  width:70px;
-  height:70px;
+  width:64px;
+  height:64px;
   border:1px solid rgba(255,255,255,.07);
   border-radius:50%;
   background:rgba(255,255,255,.065);
   color:#fff;
-  padding:18px;
+  padding:17px;
   backdrop-filter:blur(25px);
   -webkit-backdrop-filter:blur(25px);
-  transition:.15s;
+  transition:transform .15s,background .15s,color .15s;
 }
 
 .control.on{
@@ -671,8 +854,141 @@ svg{
 }
 
 .end{
+  width:70px;
+  height:70px;
+  padding:19px;
   background:#ff3b30;
   border-color:transparent;
+  box-shadow:0 10px 26px rgba(255,59,48,.3);
+}
+
+/* In-call panel (dialpad / add call) */
+
+.incall-panel{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:65;
+  max-height:78%;
+  display:flex;
+  flex-direction:column;
+  padding:10px 20px calc(20px + var(--safe-bottom));
+  background:rgba(22,22,26,.86);
+  border-top:1px solid rgba(255,255,255,.09);
+  border-top-left-radius:26px;
+  border-top-right-radius:26px;
+  backdrop-filter:blur(35px) saturate(160%);
+  -webkit-backdrop-filter:blur(35px) saturate(160%);
+  transform:translateY(105%);
+  transition:transform .34s cubic-bezier(.22,.85,.25,1);
+  box-shadow:0 -10px 40px rgba(0,0,0,.35);
+}
+
+.incall-panel.show{
+  transform:translateY(0);
+}
+
+.panel-handle{
+  width:36px;
+  height:4px;
+  border-radius:2px;
+  background:rgba(255,255,255,.22);
+  margin:2px auto 12px;
+}
+
+.panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+
+.panel-title{
+  font-size:15px;
+  font-weight:600;
+  color:#e5e5e7;
+}
+
+.panel-close{
+  width:30px;
+  height:30px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.07);
+  color:#aaa;
+  padding:5px;
+}
+
+.panel-close:active{
+  transform:scale(.88);
+}
+
+.dtmf-display{
+  min-height:30px;
+  text-align:center;
+  font-size:22px;
+  font-weight:300;
+  letter-spacing:1px;
+  color:#f0f0f2;
+  margin-bottom:12px;
+  word-break:break-all;
+}
+
+.mini-keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px 16px;
+  padding-bottom:4px;
+}
+
+.mini-key{
+  width:100%;
+  aspect-ratio:1;
+  max-height:58px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.06);
+  color:#fff;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:19px;
+  font-weight:300;
+  transition:transform .1s;
+}
+
+.mini-key:active{
+  transform:scale(.9);
+  background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.05));
+}
+
+#inCallAddView{
+  display:none;
+}
+
+.addcall-list{
+  overflow-y:auto;
+  padding-bottom:6px;
+}
+
+.addcall-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 2px;
+  border-bottom:1px solid var(--line);
+}
+
+.addcall-row:active{
+  background:rgba(255,255,255,.05);
+}
+
+.addcall-row .avatar{
+  width:40px;
+  height:40px;
+  font-size:15px;
 }
 
 /* Toast */
@@ -781,6 +1097,21 @@ svg{
 <symbol id="i-end" viewBox="0 0 24 24">
 <path d="M6 9.5c3.8-2.2 8.2-2.2 12 0"/>
 <path d="M5.5 15.5 7.2 12M18.5 15.5 16.8 12"/>
+</symbol>
+
+<symbol id="i-addcall" viewBox="0 0 24 24">
+<circle cx="10" cy="8" r="3"/>
+<path d="M4.5 19c.7-2.9 2.9-4.5 5.5-4.5"/>
+<path d="M17.5 8.5v6M14.5 11.5h6"/>
+</symbol>
+
+<symbol id="i-backspace" viewBox="0 0 24 24">
+<path d="M8.5 5.5H19a1.2 1.2 0 0 1 1.2 1.2v10.6A1.2 1.2 0 0 1 19 18.5H8.5L3.5 12z"/>
+<path d="m10.5 9.5 5 5M15.5 9.5l-5 5"/>
+</symbol>
+
+<symbol id="i-chevron-down" viewBox="0 0 24 24">
+<path d="m6 9.5 6 6 6-6"/>
 </symbol>
 
 </defs>
@@ -925,7 +1256,11 @@ Search
 <div class="dial-header"></div>
 
 <div class="display">
+<div class="display-spacer"></div>
 <div id="number" class="number"></div>
+<button class="backspace-btn" id="backspaceBtn" onclick="backspace()" aria-label="Delete">
+<svg class="icon"><use href="#i-backspace"/></svg>
+</button>
 </div>
 
 <div class="keypad">
@@ -1010,8 +1345,12 @@ Search
 Incoming Call
 </div>
 
+<div class="incoming-avatar-wrap">
+<div class="pulse-ring"></div>
+<div class="pulse-ring delay"></div>
 <div class="incoming-avatar" id="incomingAvatar">
 A
+</div>
 </div>
 
 <div class="incoming-name" id="incomingName">
@@ -1025,6 +1364,8 @@ Abir
 <div class="answer-container">
 
 <div class="slider" id="slider">
+
+<div class="slider-fill" id="sliderFill"></div>
 
 <div class="slider-text">
 Slide to answer
@@ -1050,7 +1391,8 @@ Slide to answer
 <section class="calling" id="calling">
 
 <div class="call-status">
-Connected
+<span class="status-dot"></span>
+<span id="callStatusText">Connected</span>
 </div>
 
 <div class="call-avatar" id="callAvatar">
@@ -1065,23 +1407,108 @@ Abir
 00:00
 </div>
 
-<div class="call-controls">
+<div class="call-controls-wrap">
 
+<div class="call-controls-grid">
+
+<div class="control-cell">
 <button class="control" id="muteBtn" onclick="toggleControl('muteBtn')">
 <svg class="icon"><use href="#i-mic"/></svg>
 </button>
+<span class="control-label">mute</span>
+</div>
 
+<div class="control-cell">
 <button class="control" id="speakerBtn" onclick="toggleControl('speakerBtn')">
 <svg class="icon"><use href="#i-speaker"/></svg>
 </button>
+<span class="control-label">speaker</span>
+</div>
 
-<button class="control" onclick="goToScreen('keypad')">
+<div class="control-cell">
+<button class="control" id="keypadBtn" onclick="toggleInCallPanel('dialpad')">
 <svg class="icon"><use href="#i-keypad"/></svg>
 </button>
+<span class="control-label">keypad</span>
+</div>
+
+<div class="control-cell">
+<button class="control" id="addCallBtn" onclick="toggleInCallPanel('addcall')">
+<svg class="icon"><use href="#i-addcall"/></svg>
+</button>
+<span class="control-label">add call</span>
+</div>
+
+</div>
 
 <button class="control end" onclick="endCall()">
 <svg class="icon"><use href="#i-phone"/></svg>
 </button>
+
+</div>
+
+
+<!-- In-call panel: dialpad -->
+
+<div class="incall-panel" id="incallPanel">
+
+<div class="panel-handle"></div>
+
+<div class="panel-header">
+<span class="panel-title" id="panelTitle">Keypad</span>
+<button class="panel-close" onclick="closeInCallPanel()">
+<svg class="icon"><use href="#i-chevron-down"/></svg>
+</button>
+</div>
+
+<div id="inCallDialView">
+
+<div class="dtmf-display" id="dtmfDisplay"></div>
+
+<div class="mini-keypad">
+<button class="mini-key" onclick="pressDtmf('1')">1</button>
+<button class="mini-key" onclick="pressDtmf('2')">2</button>
+<button class="mini-key" onclick="pressDtmf('3')">3</button>
+<button class="mini-key" onclick="pressDtmf('4')">4</button>
+<button class="mini-key" onclick="pressDtmf('5')">5</button>
+<button class="mini-key" onclick="pressDtmf('6')">6</button>
+<button class="mini-key" onclick="pressDtmf('7')">7</button>
+<button class="mini-key" onclick="pressDtmf('8')">8</button>
+<button class="mini-key" onclick="pressDtmf('9')">9</button>
+<button class="mini-key" onclick="pressDtmf('*')">*</button>
+<button class="mini-key" onclick="pressDtmf('0')">0</button>
+<button class="mini-key" onclick="pressDtmf('#')">#</button>
+</div>
+
+</div>
+
+<div id="inCallAddView" class="addcall-list">
+
+<div class="addcall-row" onclick="addToCall('Rahim')">
+<div class="avatar">R</div>
+<div class="row-info">
+<div class="row-name">Rahim</div>
+<div class="row-number">01800 000000</div>
+</div>
+</div>
+
+<div class="addcall-row" onclick="addToCall('Sakib')">
+<div class="avatar">S</div>
+<div class="row-info">
+<div class="row-name">Sakib</div>
+<div class="row-number">01900 000000</div>
+</div>
+</div>
+
+<div class="addcall-row" onclick="addToCall('Mim')">
+<div class="avatar">M</div>
+<div class="row-info">
+<div class="row-name">Mim</div>
+<div class="row-number">01600 000000</div>
+</div>
+</div>
+
+</div>
 
 </div>
 
@@ -1105,13 +1532,29 @@ const navItems=[
 ];
 
 function goToScreen(id){
-  document
-    .querySelectorAll(".screen")
-    .forEach(x=>x.classList.remove("active"));
 
-  document
-    .getElementById(id)
-    .classList.add("active");
+  const current=document.querySelector(".screen.active");
+  const target=document.getElementById(id);
+
+  if(!current || current===target){
+    target.classList.add("active");
+    return;
+  }
+
+  target.style.zIndex="2";
+  current.style.zIndex="1";
+
+  target.classList.add("active");
+  current.classList.add("anim-out");
+
+  setTimeout(()=>{
+
+    current.classList.remove("active","anim-out");
+    current.style.zIndex="";
+    target.style.zIndex="";
+
+  },280);
+
 }
 
 document.querySelectorAll(".screen").forEach(screen=>{
@@ -1176,12 +1619,10 @@ let phone="";
 const number=
 document.getElementById("number");
 
-function press(value){
+const backspaceBtn=
+document.getElementById("backspaceBtn");
 
-  if(phone.length>=18)
-    return;
-
-  phone+=value;
+function refreshNumberDisplay(){
 
   number.textContent=phone;
 
@@ -1190,10 +1631,67 @@ function press(value){
   else
     number.classList.remove("small");
 
+  backspaceBtn.classList.toggle("show",phone.length>0);
+
+  number.classList.remove("pop");
+
+  void number.offsetWidth;
+
+  number.classList.add("pop");
+
+}
+
+function press(value){
+
+  if(phone.length>=18)
+    return;
+
+  phone+=value;
+
+  refreshNumberDisplay();
+
   if(navigator.vibrate)
     navigator.vibrate(7);
 
 }
+
+function backspace(){
+
+  if(!phone)
+    return;
+
+  phone=phone.slice(0,-1);
+
+  refreshNumberDisplay();
+
+  if(navigator.vibrate)
+    navigator.vibrate(5);
+
+}
+
+let backspaceHoldTimer=null;
+
+backspaceBtn.addEventListener("pointerdown",()=>{
+
+  backspaceHoldTimer=setTimeout(()=>{
+
+    phone="";
+    refreshNumberDisplay();
+
+    if(navigator.vibrate)
+      navigator.vibrate(20);
+
+  },550);
+
+});
+
+["pointerup","pointerleave","pointercancel"].forEach(evt=>{
+
+  backspaceBtn.addEventListener(evt,()=>{
+    clearTimeout(backspaceHoldTimer);
+  });
+
+});
 
 
 function makeCall(){
@@ -1255,9 +1753,14 @@ function maxKnobTravel(){
   return slider.clientWidth-knob.clientWidth-8;
 }
 
+const sliderFill=document.getElementById("sliderFill");
+
 function resetSliderPosition(){
   knobX=0;
+  knob.classList.add("snapping");
   knob.style.transform="translateX(0px)";
+  sliderFill.style.width="0px";
+  setTimeout(()=>knob.classList.remove("snapping"),320);
 }
 
 function setKnobX(x){
@@ -1267,6 +1770,10 @@ function setKnobX(x){
   knobX=Math.max(0,Math.min(x,max));
 
   knob.style.transform=`translateX(${knobX}px)`;
+  sliderFill.style.width=(knobX+knob.clientWidth/2)+"px";
+
+  const progress=max>0?knobX/max:0;
+  knob.style.boxShadow=`0 6px ${18+progress*26}px rgba(48,209,88,${.28+progress*.4}),inset 0 1px 1px rgba(255,255,255,.35)`;
 
 }
 
@@ -1275,6 +1782,7 @@ knob.addEventListener("pointerdown",e=>{
   dragging=true;
   startX=e.clientX-knobX;
 
+  knob.classList.remove("snapping");
   knob.setPointerCapture(e.pointerId);
 
 });
@@ -1285,7 +1793,6 @@ knob.addEventListener("pointermove",e=>{
   if(!dragging)
     return;
 
-  const rect=slider.getBoundingClientRect();
   const relativeX=e.clientX-startX;
 
   setKnobX(relativeX);
@@ -1321,9 +1828,13 @@ knob.addEventListener("pointercancel",endDrag);
 
 function answerCall(){
 
-  incoming.classList.remove("show");
+  if(navigator.vibrate)
+    navigator.vibrate(15);
 
-  startActiveCall(currentCaller.name,currentCaller.num);
+  setTimeout(()=>{
+    incoming.classList.remove("show");
+    startActiveCall(currentCaller.name,currentCaller.num);
+  },120);
 
 }
 
@@ -1338,26 +1849,47 @@ let callTimerInterval=null;
 
 function startActiveCall(name,num){
 
-  document.getElementById("callName").textContent=name;
+  const nameEl=document.getElementById("callName");
+
+  nameEl.textContent=name;
+  delete nameEl.dataset.base;
+
+  dtmf="";
+  document.getElementById("dtmfDisplay").textContent="";
+  closeInCallPanel();
+
   document.getElementById("callAvatar").textContent=name.charAt(0).toUpperCase();
+
+  const statusText=document.getElementById("callStatusText");
+  const statusDot=document.querySelector(".status-dot");
+
+  statusText.textContent="Calling…";
+  statusDot.style.opacity="0";
 
   callSeconds=0;
   callTimeEl.textContent="00:00";
 
   clearInterval(callTimerInterval);
 
-  callTimerInterval=setInterval(()=>{
-
-    callSeconds++;
-
-    const m=String(Math.floor(callSeconds/60)).padStart(2,"0");
-    const s=String(callSeconds%60).padStart(2,"0");
-
-    callTimeEl.textContent=`${m}:${s}`;
-
-  },1000);
-
   calling.classList.add("show");
+
+  setTimeout(()=>{
+
+    statusText.textContent="Connected";
+    statusDot.style.opacity="1";
+
+    callTimerInterval=setInterval(()=>{
+
+      callSeconds++;
+
+      const m=String(Math.floor(callSeconds/60)).padStart(2,"0");
+      const s=String(callSeconds%60).padStart(2,"0");
+
+      callTimeEl.textContent=`${m}:${s}`;
+
+    },1000);
+
+  },1100);
 
 }
 
@@ -1368,8 +1900,9 @@ function endCall(){
   calling.classList.remove("show");
 
   phone="";
-  number.textContent="";
-  number.classList.remove("small");
+  refreshNumberDisplay();
+
+  closeInCallPanel();
 
   document
     .querySelectorAll(".control")
@@ -1385,6 +1918,82 @@ function toggleControl(id){
 
   document.getElementById(id).classList.toggle("on");
 
+}
+
+
+/* IN-CALL PANEL: keypad / add call */
+
+let inCallPanelOpen=null;
+let dtmf="";
+
+const incallPanel=document.getElementById("incallPanel");
+const dialView=document.getElementById("inCallDialView");
+const addView=document.getElementById("inCallAddView");
+const panelTitle=document.getElementById("panelTitle");
+
+function toggleInCallPanel(which){
+
+  if(inCallPanelOpen===which){
+    closeInCallPanel();
+    return;
+  }
+
+  inCallPanelOpen=which;
+
+  const isDial=which==="dialpad";
+
+  dialView.style.display=isDial?"block":"none";
+  addView.style.display=isDial?"none":"block";
+
+  panelTitle.textContent=isDial?"Keypad":"Add Call";
+
+  incallPanel.classList.add("show");
+
+  document.getElementById("keypadBtn").classList.toggle("on",isDial);
+  document.getElementById("addCallBtn").classList.toggle("on",!isDial);
+
+}
+
+function closeInCallPanel(){
+
+  incallPanel.classList.remove("show");
+  inCallPanelOpen=null;
+
+  document.getElementById("keypadBtn").classList.remove("on");
+  document.getElementById("addCallBtn").classList.remove("on");
+
+}
+
+function pressDtmf(value){
+
+  dtmf+=value;
+
+  document.getElementById("dtmfDisplay").textContent=dtmf;
+
+  if(navigator.vibrate)
+    navigator.vibrate(6);
+
+}
+
+function addToCall(name){
+
+  const nameEl=document.getElementById("callName");
+
+  if(!nameEl.dataset.base)
+    nameEl.dataset.base=nameEl.textContent;
+
+  nameEl.textContent=nameEl.dataset.base+", "+name;
+
+  showToast(name+" joined the call");
+
+  closeInCallPanel();
+
+}
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
 }
 
 </script>
