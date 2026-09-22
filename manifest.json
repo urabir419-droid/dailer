@@ -1,0 +1,28 @@
+{
+  "name": "Liquid Glass Dialer",
+  "short_name": "Phone",
+  "description": "A clean and smooth liquid glass phone dialer.",
+  "start_url": "/glass-calculator/",
+  "scope": "/glass-calculator/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": [
+    "communication"
+  ],
+  "icons": [
+    {
+      "src": "/glass-calculator/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/glass-calculator/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
